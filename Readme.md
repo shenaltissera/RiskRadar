@@ -94,7 +94,10 @@ pip install -r requirements.txt
 
 ### 2. Download the training dataset
 
-Download the [US Accidents dataset](https://www.kaggle.com/datasets/sobhanmoosavi/us-accidents) from Kaggle and place it in `data/us_accidents_sample.csv`.
+Dataset: Victorian Road Crash Data
+Source: Transport Victoria Open Data
+URL: https://opendata.transport.vic.gov.au/dataset/victoria-road-crash-data
+License: Creative Commons Attribution 4.0
 
 ### 3. Train the model
 
@@ -206,8 +209,10 @@ numpy>=1.24
 
 ## Dataset Credit
 
-Moosavi, Sobhan, et al. *"A Countrywide Traffic Accident Dataset"*, 2019.  
-[https://smoosavi.org/datasets/us_accidents](https://smoosavi.org/datasets/us_accidents)
+Dataset: Victorian Road Crash Data
+Source: Transport Victoria Open Data
+URL: https://opendata.transport.vic.gov.au/dataset/victoria-road-crash-data
+License: Creative Commons Attribution 4.0
 
 Weather data provided by [Open-Meteo](https://open-meteo.com/) — free, no API key required for basic usage.
 
