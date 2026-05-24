@@ -94,10 +94,7 @@ pip install -r requirements.txt
 
 ### 2. Download the training dataset
 
-Dataset: Victorian Road Crash Data
-Source: Transport Victoria Open Data
-URL: https://opendata.transport.vic.gov.au/dataset/victoria-road-crash-data
-License: Creative Commons Attribution 4.0
+Download the [US Accidents dataset](https://www.kaggle.com/datasets/sobhanmoosavi/us-accidents) from Kaggle and place it in `data/us_accidents_sample.csv`.
 
 ### 3. Train the model
 
@@ -117,28 +114,29 @@ streamlit run dashboard/app.py
 
 ## Model Details
 
-**Algorithm:** XGBoost (gradient boosted trees)
+**Algorithm:** XGBoost (gradient boosted trees, binary classifier)
 
 **Features used:**
-- Hour of day, day of week, month
-- Rush hour flag (7–9am, 4–7pm)
-- Temperature, precipitation, wind speed, visibility
-- Weather condition (encoded)
+- Time — hour of day, day of week, month, peak hour flag (7–9am, 4–7pm), night flag
+- Weather — risk score and adverse weather flag (live from Open-Meteo at prediction time)
+- Road — speed zone, high-speed flag, dark conditions, intersection type, heavy vehicle
+- Crash context — accident type, run-off-road flag, number of vehicles, persons involved
 
-**Target:** Accident severity (low / moderate / high risk)
+**Target:** Binary risk classification — **high** (fatal or serious injury) vs **moderate** (other injury)
 
-**Training data:** US Accidents dataset — 2.8M records spanning 49 US states (2016–2023)
+**Training data:** Victorian Road Crash Data — 125,661 Melbourne-area records (2013–2023), sourced from Victoria Police reports via Transport Victoria Open Data.
 
 **Evaluation metrics:**
 
 | Metric | Score |
 |---|---|
-| Accuracy | ~83% |
-| Precision | ~81% |
-| Recall | ~79% |
-| F1 Score | ~80% |
+| Accuracy | 61.5% |
+| ROC-AUC | 0.617 |
+| CV AUC (5-fold) | 0.614 ± 0.001 |
+| High risk precision | 0.45 |
+| High risk recall | 0.51 |
 
-*(Metrics will vary depending on train/test split and feature selection)*
+**A note on model performance:** The Victorian crash dataset records *what happened* — accident type, time, road geometry — but crash severity is primarily driven by factors not captured here: vehicle speed at impact, seatbelt use, and driver state. The strongest available feature (accident type) correlates at 0.14 with severity. The model's value is therefore in **real-time contextual risk scoring** — combining live weather, time of day, and road conditions — rather than precise severity prediction. See Future Improvements for a planned approach that better addresses this.
 
 ---
 
@@ -149,8 +147,8 @@ The `lambda/handler.py` file exposes a REST endpoint that accepts a POST request
 **Request format:**
 ```json
 {
-  "latitude": 37.7749,
-  "longitude": -122.4194,
+  "latitude": -37.8136,
+  "longitude": 144.9631,
   "timestamp": "2024-11-15T08:30:00"
 }
 ```
@@ -159,12 +157,12 @@ The `lambda/handler.py` file exposes a REST endpoint that accepts a POST request
 ```json
 {
   "risk_level": "high",
-  "risk_score": 0.82,
+  "risk_score": 0.74,
   "weather": {
     "temperature_c": 12.4,
     "precipitation_mm": 3.1,
     "wind_speed_kmh": 18.0,
-    "visibility_km": 4.2
+    "weather_condition": "Rain"
   }
 }
 ```
@@ -209,21 +207,21 @@ numpy>=1.24
 
 ## Dataset Credit
 
-Dataset: Victorian Road Crash Data
-Source: Transport Victoria Open Data
-URL: https://opendata.transport.vic.gov.au/dataset/victoria-road-crash-data
-License: Creative Commons Attribution 4.0
+Victorian Road Crash Data, Transport Victoria Open Data Portal.  
+[https://opendata.transport.vic.gov.au/dataset/victoria-road-crash-data](https://opendata.transport.vic.gov.au/dataset/victoria-road-crash-data)  
+License: Creative Commons Attribution 4.0. Data consolidated from Victoria Police reports and hospital injury records, updated monthly.
 
-Weather data provided by [Open-Meteo](https://open-meteo.com/) — free, no API key required for basic usage.
+Weather data provided by [Open-Meteo](https://open-meteo.com/) — free, open-source, no API key required.
 
 ---
 
 ## Future Improvements
 
-- [ ] Add support for international cities
-- [ ] Incorporate real-time traffic volume data
-- [ ] Train separate models per US state for higher accuracy
+- [ ] **Accident likelihood model** — rather than predicting severity after a crash, predict the *probability of an accident occurring* at a given location, time, and weather condition by generating negative samples (no-crash observations). This approach is better suited to the available data and expected to achieve ROC-AUC 0.75–0.85.
+- [ ] Incorporate real-time traffic volume data (VicRoads API)
+- [ ] Add pedestrian and cyclist risk as separate model outputs
 - [ ] Add email/SMS alerts for high-risk commute windows
+- [ ] Expand coverage to all of Victoria, not just Melbourne
 - [ ] Dockerise the Lambda deployment
 
 ---
