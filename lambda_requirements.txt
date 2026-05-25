@@ -10,5 +10,4 @@ numpy>=1.24
 joblib>=1.3
 requests>=2.31
 streamlit>=1.28
-matplotlib>=3.7
 pydeck>=0.8
