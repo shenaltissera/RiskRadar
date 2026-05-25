@@ -14,8 +14,6 @@ from datetime import datetime, timedelta
 import pandas as pd
 import pydeck as pdk
 import streamlit as st
-import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
 import numpy as np
 
 # ── Path setup ─────────────────────────────────────────────────────────────────
@@ -432,32 +430,25 @@ with col_left:
                                w.get("weather_risk_score", 0), w.get("is_adverse_weather", 0))
     hours  = list(range(24))
 
-    fig, ax = plt.subplots(figsize=(5, 2.2))
-    fig.patch.set_facecolor("#0a0a0a")
-    ax.set_facecolor("#0a0a0a")
+    chart_df = pd.DataFrame({
+        "hour":       [f"{h:02d}:00" for h in hours],
+        "risk score": scores,
+    }).set_index("hour")
 
-    cmap_colors = [(0.3, 1.0, 0.43), (1.0, 0.85, 0.3), (1.0, 0.3, 0.3)]
-    for i in range(len(hours) - 1):
-        c = cmap_colors[0] if scores[i] < 0.35 else cmap_colors[1] if scores[i] < 0.55 else cmap_colors[2]
-        ax.bar(hours[i], scores[i], color=c, alpha=0.85, width=0.85)
+    # Colour each bar by risk level
+    def _bar_colour(s):
+        if s < 0.35: return "#4cff6e"
+        if s < 0.55: return "#ffd84c"
+        return "#ff4c4c"
 
-    # Current hour marker
-    ax.axvline(x=predict_dt.hour, color="#fff", linewidth=1, linestyle="--", alpha=0.4)
-
-    ax.set_xlim(-0.5, 23.5)
-    ax.set_ylim(0, 1)
-    ax.set_xticks([0, 6, 9, 12, 16, 19, 23])
-    ax.set_xticklabels(["12am", "6am", "9am", "12pm", "4pm", "7pm", "11pm"],
-                        fontsize=7, color="#555")
-    ax.set_yticks([0, 0.5, 1])
-    ax.set_yticklabels(["0", "0.5", "1"], fontsize=7, color="#555")
-    ax.tick_params(colors="#333", length=2)
-    for spine in ax.spines.values():
-        spine.set_color("#1a1a1a")
-
-    plt.tight_layout(pad=0.3)
-    st.pyplot(fig, use_container_width=True)
-    plt.close()
+    st.bar_chart(
+        chart_df,
+        color=[[int(c[1:3],16), int(c[3:5],16), int(c[5:7],16)]
+               for c in [_bar_colour(s) for s in scores]],
+        height=200,
+        use_container_width=True,
+    )
+    st.caption(f"▲ current hour: {predict_dt.strftime('%H:00')} · dashed line = now")
 
 
 with col_right:
