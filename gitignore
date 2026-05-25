@@ -41,7 +41,6 @@ data/*.zip
 data/*.gz
 
 # Trained models (share via S3 or Git LFS)
-models/*.joblib
 models/*.pkl
 models/*.json
 models/*.bin
