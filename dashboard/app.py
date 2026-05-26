@@ -430,25 +430,28 @@ with col_left:
                                w.get("weather_risk_score", 0), w.get("is_adverse_weather", 0))
     hours  = list(range(24))
 
-    chart_df = pd.DataFrame({
-        "hour":       [f"{h:02d}:00" for h in hours],
-        "risk score": scores,
-    }).set_index("hour")
-
-    # Colour each bar by risk level
-    def _bar_colour(s):
-        if s < 0.35: return "#4cff6e"
-        if s < 0.55: return "#ffd84c"
-        return "#ff4c4c"
+    # Create separate columns for each risk level
+    chart_data = []
+    for h, s in zip(hours, scores):
+        row = {"hour": f"{h:02d}:00"}
+        if s < 0.35:
+            row["low"] = s
+        elif s < 0.55:
+            row["moderate"] = s
+        else:
+            row["high"] = s
+        chart_data.append(row)
+    
+    chart_df = pd.DataFrame(chart_data).set_index("hour").fillna(0)
 
     st.bar_chart(
         chart_df,
-        color=[[int(c[1:3],16), int(c[3:5],16), int(c[5:7],16)]
-               for c in [_bar_colour(s) for s in scores]],
+        color=["#4cff6e", "#ffd84c", "#ff4c4c"],  # low, moderate, high
         height=200,
         use_container_width=True,
+        stack=False,
     )
-    st.caption(f"▲ current hour: {predict_dt.strftime('%H:00')} · dashed line = now")
+    st.caption(f"▲ current hour: {predict_dt.strftime('%H:00')}")
 
 
 with col_right:
