@@ -430,28 +430,27 @@ with col_left:
                                w.get("weather_risk_score", 0), w.get("is_adverse_weather", 0))
     hours  = list(range(24))
 
-    # Create separate columns for each risk level
-    chart_data = []
-    for h, s in zip(hours, scores):
-        row = {"hour": f"{h:02d}:00"}
-        if s < 0.35:
-            row["low"] = s
-        elif s < 0.55:
-            row["moderate"] = s
-        else:
-            row["high"] = s
-        chart_data.append(row)
-    
-    chart_df = pd.DataFrame(chart_data).set_index("hour").fillna(0)
+    chart_df = pd.DataFrame({
+        "hour": [f"{h:02d}:00" for h in hours],
+        "risk": scores,
+    }).set_index("hour")
 
     st.bar_chart(
         chart_df,
-        color=["#4cff6e", "#ffd84c", "#ff4c4c"],  # low, moderate, high
+        color="#ff8c42",  # single orange-red color
         height=200,
         use_container_width=True,
-        stack=False,
     )
-    st.caption(f"▲ current hour: {predict_dt.strftime('%H:00')}")
+    
+    # Color legend below
+    st.markdown("""
+    <div style="font-family:monospace;font-size:0.75rem;color:#555;margin-top:0.3rem;">
+        <span style="color:#4cff6e">█</span> Low (&lt;0.35) ·
+        <span style="color:#ffd84c">█</span> Moderate (0.35–0.55) ·
+        <span style="color:#ff4c4c">█</span> High (&gt;0.55) ·
+        Current: {predict_dt.strftime('%H:00')}
+    </div>
+    """.format(predict_dt=predict_dt), unsafe_allow_html=True)
 
 
 with col_right:
