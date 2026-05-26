@@ -3,6 +3,9 @@
 
 RiskRadar is a real-time traffic accident prediction system that combines live weather data with machine learning to forecast road risk levels by location and time. Built with XGBoost, AWS Lambda, and Streamlit.
 
+<img width="3600" height="2058" alt="B2F6F296-7490-4C0D-824B-A74A6FB57241" src="https://github.com/user-attachments/assets/5fc25d15-0750-45bc-af3f-d02f9c07c4fa" />
+
+
 ![Python](https://img.shields.io/badge/Python-3.10+-blue?style=flat-square&logo=python)
 ![XGBoost](https://img.shields.io/badge/XGBoost-ML_Model-orange?style=flat-square)
 ![AWS Lambda](https://img.shields.io/badge/AWS-Lambda-yellow?style=flat-square&logo=amazonaws)
