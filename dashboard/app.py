@@ -443,14 +443,14 @@ with col_left:
     )
     
     # Color legend below
-    st.markdown("""
+    st.markdown(f"""
     <div style="font-family:monospace;font-size:0.75rem;color:#555;margin-top:0.3rem;">
         <span style="color:#4cff6e">█</span> Low (&lt;0.35) ·
         <span style="color:#ffd84c">█</span> Moderate (0.35–0.55) ·
         <span style="color:#ff4c4c">█</span> High (&gt;0.55) ·
         Current: {predict_dt.strftime('%H:00')}
     </div>
-    """.format(predict_dt=predict_dt), unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
 
 with col_right:
